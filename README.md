@@ -13,6 +13,8 @@
    * `pip install tensorboard tensorboardX`
    * `conda install -c 1adrianb face_alignment`
 
+## Run  
+  * `python train.py`
 
 ## Code References
   * [NVlabds/MUNIT](https://github.com/NVlabs/MUNIT)  
