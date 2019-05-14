@@ -101,7 +101,7 @@ class MUNIT_Trainer(nn.Module):
         self.train()
         return x_ab, x_ba
 
-    def gen_update(self, x_a, x_b, hyperparameters, pose_label):
+    def gen_update(self, x_a, x_b, hyperparameters): #, pose_label):
         self.gen_opt.zero_grad()
         # if self.pose_opt is not None:
         #     self.pose_opt.zero_grad()
@@ -144,9 +144,9 @@ class MUNIT_Trainer(nn.Module):
         # pose loss
         # self.loss_pose_a = self.pose_ab.calc_pose_loss(c_b, pose_label) if hyperparameters['pose_w'] > 0 else 0
         # self.loss_pose_b = self.pose_ab.calc_pose_loss(c_b_recon, pose_label) if hyperparameters['pose_w'] > 0 else 0
-        self.loss_pose_a = self.compute_pose_loss(x_a, x_ab)
+        # self.loss_pose_a = self.compute_pose_loss(x_a, x_ab)
         self.loss_pose_b = self.compute_pose_loss(x_b, x_ba)
-        self.loss_pose_a1 = self.compute_pose_loss(x_a, x_a_recon_noise)
+        # self.loss_pose_a1 = self.compute_pose_loss(x_a, x_a_recon_noise)
         self.loss_pose_b1 = self.compute_pose_loss(x_b, x_b_recon_noise)
         # total loss
         self.loss_gen_total = hyperparameters['gan_w'] * self.loss_gen_adv_a + \
@@ -161,10 +161,10 @@ class MUNIT_Trainer(nn.Module):
                               hyperparameters['recon_x_cyc_w'] * self.loss_gen_cycrecon_x_b + \
                               hyperparameters['vgg_w'] * self.loss_gen_vgg_a + \
                               hyperparameters['vgg_w'] * self.loss_gen_vgg_b + \
-                              hyperparameters['pose_w'] * 0.5 * self.loss_pose_a + \
                               hyperparameters['pose_w'] * self.loss_pose_b + \
-                              hyperparameters['pose_w_recon'] * self.loss_pose_a1 + \
                               hyperparameters['pose_w_recon'] * self.loss_pose_b1
+                            #   hyperparameters['pose_w'] * 0.5 * self.loss_pose_a + \
+                            #   hyperparameters['pose_w_recon'] * self.loss_pose_a1 + \
         self.loss_gen_total.backward()
         self.gen_opt.step()
         # if self.pose_opt is not None:
@@ -197,7 +197,9 @@ class MUNIT_Trainer(nn.Module):
             preds.add_(-.5)
             # print('preds size:', preds.size(), preds)
             preds *= 4 # map coord in 64x64 to 256x256
-            # print('final preds size:', preds.size(), preds)
+            # print('final preds size:', preds.size())
+            # process for anime. preds.size(): (batch_size, 68, 2)
+            # copy point 1~31, mean 32~36, mean 37~42, mean 43~48
         self.train()    
         return preds
 

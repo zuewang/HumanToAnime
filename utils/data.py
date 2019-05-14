@@ -122,22 +122,23 @@ class ImageFolder(data.Dataset):
     def __getitem__(self, index):
         path = self.imgs[index]
 
-        # if keypoint json does not exist, return vector with all elements as zeros
-        label = label = [0.0] * 70 * 3
-        label_path = None
-        if self.return_labels:
-            # path_to/{anime, human, keypoints}
-            keypoint_folder = os.path.abspath( os.path.join(path, '../../keypoints') )
-            keypoint_filename = '.'.join( (path.split(os.sep)[-1]).split('.')[:-1] )  + '.json'
-            label_path = os.path.join(keypoint_folder, keypoint_filename)
-            if os.path.exists(label_path):
-                with open(label_path) as f:
-                    label = json.load(f)
-        # label = torch.FloatTensor(label)
+        # # if keypoint json does not exist, return vector with all elements as zeros
+        # label = label = [0.0] * 70 * 3
+        # label_path = None
+        # if self.return_labels:
+        #     # path_to/{anime, human, keypoints}
+        #     keypoint_folder = os.path.abspath( os.path.join(path, '../../keypoints') )
+        #     keypoint_filename = '.'.join( (path.split(os.sep)[-1]).split('.')[:-1] )  + '.json'
+        #     label_path = os.path.join(keypoint_folder, keypoint_filename)
+        #     if os.path.exists(label_path):
+        #         with open(label_path) as f:
+        #             label = json.load(f)
+        # # label = torch.FloatTensor(label)
                     
 
         img = self.loader(path)
-        sample = {'image': img, 'label': label}
+        # sample = {'image': img, 'label': label}
+        sample = img
         if self.transform is not None:
             sample = self.transform(sample)
         

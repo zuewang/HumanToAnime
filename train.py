@@ -40,10 +40,14 @@ if __name__ == '__main__':
     trainer.cuda()
     # a: anime; b:human
     train_loader_a, train_loader_b, test_loader_a, test_loader_b = get_all_data_loaders(config)
-    train_display_images_a = torch.stack([train_loader_a.dataset[i]['image'] for i in range(display_size)]).cuda()
-    train_display_images_b = torch.stack([train_loader_b.dataset[i]['image'] for i in range(display_size)]).cuda()
-    test_display_images_a = torch.stack([test_loader_a.dataset[i]['image'] for i in range(display_size)]).cuda()
-    test_display_images_b = torch.stack([test_loader_b.dataset[i]['image'] for i in range(display_size)]).cuda()
+    train_display_images_a = torch.stack([train_loader_a.dataset[i] for i in range(display_size)]).cuda()
+    train_display_images_b = torch.stack([train_loader_b.dataset[i] for i in range(display_size)]).cuda()
+    test_display_images_a = torch.stack([test_loader_a.dataset[i] for i in range(display_size)]).cuda()
+    test_display_images_b = torch.stack([test_loader_b.dataset[i] for i in range(display_size)]).cuda()
+    # train_display_images_a = torch.stack([train_loader_a.dataset[i]['image'] for i in range(display_size)]).cuda()
+    # train_display_images_b = torch.stack([train_loader_b.dataset[i]['image'] for i in range(display_size)]).cuda()
+    # test_display_images_a = torch.stack([test_loader_a.dataset[i]['image'] for i in range(display_size)]).cuda()
+    # test_display_images_b = torch.stack([test_loader_b.dataset[i]['image'] for i in range(display_size)]).cuda()
 
     # train_display_labels_b = torch.stack([train_loader_b.dataset[i]['label'] for i in range(display_size)]).cuda()
     # test_display_labels_b = torch.stack([test_loader_b.dataset[i]['label'] for i in range(display_size)]).cuda()
@@ -64,8 +68,10 @@ if __name__ == '__main__':
         for it, (samples_a, samples_b) in enumerate(zip(train_loader_a, train_loader_b)):
             trainer.update_learning_rate()
             # detach
-            images_a, labels_a = samples_a['image'].cuda().detach(), samples_a['label'].cuda()
-            images_b, labels_b = samples_b['image'].cuda().detach(), samples_b['label'].cuda()
+            # images_a, labels_a = samples_a['image'].cuda().detach(), samples_a['label'].cuda()
+            # images_b, labels_b = samples_b['image'].cuda().detach(), samples_b['label'].cuda()
+            images_a = samples_a.cuda().detach()
+            images_b = samples_b.cuda().detach()
             # print(images_a.shape, labels_a, images_b.shape, labels_b.shape)
             # print(labels_b)
             # with torch.no_grad():
@@ -75,7 +81,7 @@ if __name__ == '__main__':
             with Timer("Elapsed time in update: %f"):
                 # Main training code
                 trainer.dis_update(images_a, images_b, config)
-                trainer.gen_update(images_a, images_b, config, labels_b)
+                trainer.gen_update(images_a, images_b, config) #, labels_b)
                 torch.cuda.synchronize()
             # Dump training stats in log file
             if (iterations + 1) % config['log_iter'] == 0:
@@ -96,7 +102,8 @@ if __name__ == '__main__':
             if (iterations + 0) % config['image_display_iter'] == 0:
                 with torch.no_grad():
                     image_outputs = trainer.sample(train_display_images_a, train_display_images_b) #, train_display_labels_b)
-                write_2images(image_outputs, display_size, image_directory, 'train_current')
+                current_image_directory = os.path.abspath(os.path.join(image_directory, os.pardir))
+                write_2images(image_outputs, display_size, current_image_directory, 'train_current')
                 # print('========================= face_alignment_net weight ===============================')
                 # torch.save(trainer.face_alignment_net.state_dict(), './facemark_%08d.pt' % (iterations + 0))
                 

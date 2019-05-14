@@ -40,7 +40,7 @@ import time
 # vgg_preprocess
 # get_scheduler
 # weights_init
-
+'''
 class ToTensor(object):
     def __call__(self, sample):
         image, label = sample['image'], sample['label']
@@ -131,7 +131,7 @@ class RandomHorizontalFlip(object):
             image = F.hflip(image)
 
         return {'image': image, 'label': label}
-
+'''
 def get_all_data_loaders(conf):
     batch_size = conf['batch_size']
     test_data_ratio = conf['test_data_ratio']
@@ -159,11 +159,11 @@ def get_all_data_loaders(conf):
 
 def get_data_loader_folder(input_folder, batch_size, new_size=None,
                            height=256, width=256, num_workers=4, test_data_ratio=0.15, crop=True, return_labels=False):
-    transform_list = [ToTensor(),
-                      Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+    transform_list = [transforms.ToTensor(),
+                      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
     # transform_list = [RandomCrop((height, width))] + transform_list if crop else transform_list
-    transform_list_test = [Resize(new_size)] + transform_list if new_size is not None else transform_list
-    transform_list_train = transform_list_test # [RandomHorizontalFlip()] + transform_list_test
+    transform_list_test = [transforms.Resize(new_size)] + transform_list if new_size is not None else transform_list
+    transform_list_train = [transforms.RandomHorizontalFlip()] + transform_list_test
 
     transform_train = transforms.Compose(transform_list_train)
     transform_test = transforms.Compose(transform_list_test)
